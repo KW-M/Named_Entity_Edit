@@ -1,0 +1,69 @@
+.App {
+	padding: 4rem 2rem;
+	font-size: 16px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol';
+	direction: ltr;
+}
+
+#displacy_container {
+	line-height: 2.5rem;
+	direction: ltr;
+}
+
+[data-entity] {
+	position: relative;
+	padding: 0.45em 0.6em;
+	border-radius: 0.35em;
+	background-color: #c0b5ff;
+	box-decoration-break: clone;
+	white-space: nowrap;
+	line-height: 1;
+	cursor: pointer;
+}
+
+[data-entity]:before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #c0b5ff1f;
+	content: '';
+	user-select: none;
+}
+
+[data-entity]:after {
+	margin-left: 0.5rem;
+	padding: 0.4em 0;
+	box-sizing: border-box;
+	border-radius: 0.35em;
+	content: attr(data-entity);
+	vertical-align: middle;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 0.8em;
+	line-height: 2em;
+}
+
+[data-entity] button {
+	position: absolute;
+	top: -1em;
+	left: -1.2em;
+	width: 2.5em;
+	height: 2.5em;
+	box-sizing: border-box;
+	border-radius: 111px;
+	background-color: #ff0000;
+	color: #ffffff;
+	font-weight: bold;
+	opacity: 0;
+	cursor: pointer;
+}
+
+[data-entity]:hover button {
+	opacity: 0.6;
+}
+[data-entity] button:hover {
+	opacity: 1;
+}
