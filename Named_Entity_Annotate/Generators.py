@@ -12,45 +12,49 @@ def from_folder(folder_path,filter_by_extension=None):
             with open(os.path.join(folder_path,filename),'r') as file:
                 yield file.read()
 
+def from_file(file_path,delimeter=None):
+    if delimeter != None:
+        file = open(file_path,'r',newline=delimeter)
+    else:
+        file = open(file_path,'r')
+    line = file.readline()
+    while line != None and line != '':
+        yield line # returns the line with the \n still attched
+        line = file.readline()
+    file.close()
+
 # --- Modifier Function Generators --
 
-def make_empty_ent_dict_from_text(string_source_gen):
-    for string in string_source_gen:
-        if string == None:
+def generator_modifier(source_generator,modifier_function):
+    for item in source_generator:
+        if item == None:
             yield None
         else:
-            yield {
-                "text":str(string),
-                "ents":[]
-            }
+            yield modifier_function(item)
 
-def parse_json_string(string_source_gen):
-    for string in string_source_gen:
-        if string == None:
-            yield None
-        else:
-            yield json.loads(string)
+def make_empty_ent_dict_from_text(source_generator):
+    modifier_function = lambda string: { "text":str(string), "ents":[] }
+    return generator_modifier(source_generator,modifier_function)
 
-def dump_json_string(dict_source_gen):
-    for dict_source in dict_source_gen:
-        if dict_source == None:
-            yield None
-        else:
-            yield json.dumps(dict_source)
+def parse_json_string(source_generator):
+    modifier_function = lambda string: json.loads(string)
+    return generator_modifier(source_generator,modifier_function)
 
-def escape_control_chars(string_source_gen):
-    for string in string_source_gen:
-        if string == None:
-            yield None
-        else:
-            yield string.encode('unicode_escape')
+def dump_json_string(source_generator):
+    modifier_function = lambda dict_obj: json.dumps(dict_obj)
+    return generator_modifier(source_generator,modifier_function)
 
-def unescape_control_chars(string_source_gen):
-    for string in string_source_gen:
-        if string == None:
-            yield None
-        else:
-            yield string.decode('unicode_escape')
+def escape_control_chars(source_generator):
+    modifier_function = lambda string: string.encode('unicode_escape')
+    return generator_modifier(source_generator,modifier_function)
+
+def unescape_control_chars(source_generator):
+    modifier_function = lambda string: string.decode('unicode_escape')
+    return generator_modifier(source_generator,modifier_function)
+
+def unchars2(source_generator,thing):
+    modifier_function = lambda string: string + str(thing)
+    return generator_modifier(source_generator,modifier_function)
 
 # --- Save Function Generators --
 
@@ -75,7 +79,7 @@ def save_as_file_in_folder(folder_path,output_file_extension):
 
 
 # nexty = make_empty_ent_dict_from_text(iter([1,2,4]))
-nexty = make_empty_ent_dict_from_text(unescape_control_chars(escape_control_chars(from_folder('./',filter_by_extension='rc'))))
+# nexty = make_empty_ent_dict_from_text(unescape_control_chars(escape_control_chars(from_folder('./',filter_by_extension='rc'))))
 # next = from_file('README.md')
 
 # print(next(nexty))
@@ -83,10 +87,10 @@ nexty = make_empty_ent_dict_from_text(unescape_control_chars(escape_control_char
 # print(next(nexty))
 # print(next(nexty))
 # print(next(nexty))
-print(next(dump_json_string(nexty)))
-print(next(parse_json_string(dump_json_string(nexty))))
-print(next(parse_json_string(dump_json_string(nexty))))
-print(next(parse_json_string(dump_json_string(nexty))))
+# print(next(unchars2(dump_json_string(nexty),4)))
+# print(next(parse_json_string(dump_json_string(nexty))))
+# print(next(parse_json_string(dump_json_string(nexty))))
+# print(next(parse_json_string(dump_json_string(nexty))))
 # print(next())
 # print(next())
 # print(next())
