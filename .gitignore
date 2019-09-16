@@ -1,7 +1,8 @@
 # vs Code
 .vscode/
+questions/
 
-### General Python gitignore ( from Github.com/gitignore ) ###
+### General Node JS gitignore ( from Github.com/gitignore ) ###
 
 # Logs
 logs

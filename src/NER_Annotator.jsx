@@ -4,61 +4,19 @@ import NERVisualizer from "./NER_Visualizer";
 class NERAnnotator extends React.Component {
 	constructor(props) {
 		super(props);
-		// // Don't call this.setState() here!
-		this.state = {
-			text: props.text || "No Text Given",
-			ents: props.avalableEnts || [
-				"PRODUCT",
-				"ORG",
-				"GPE",
-				"LOC",
-				"MONEY",
-				"TIME",
-				"PERCENT",
-				"DATE",
-				"QUANTITY",
-				"ORDINAL",
-				"CARDINAL",
-				"PERSON",
-				"NORP",
-				"FAC"
-			],
-			lastEnt: null,
-			undoHistory: [
-				{
-					spans: props.spansObj || []
-				}
-			]
-		};
+		this.lastUsedEntity = null;
 	}
-
-	componentWillReceiveProps(nextProps) {
-		// console.log("componentWillReceiveProps");
-		this.setState({
-			text: nextProps.text || "No Text Given",
-			ents: nextProps.ents || this.state.ents,
-			undoHistory: [
-				{
-					spans: nextProps.spansObj || []
-				}
-			]
-		});
-	}
-
 	render() {
-		const undoHistory = this.state.undoHistory;
-		const current = undoHistory[undoHistory.length - 1];
-		console.log(undoHistory);
 		return (
 			<figure
-				id="displacy_container"
+				id="ner_visualizer_container"
 				onMouseUp={(e) => {
 					this.handleMouseUp(e);
 				}}>
 				<NERVisualizer
-					text={this.state.text}
-					ents={this.state.ents}
-					spans={current.spans}
+					text={this.props.text}
+					avalableEntities={this.props.avalableEntities}
+					spans={this.props.spans}
 					deleteSpan={this.deleteSpan.bind(this)}
 					cycleSpanLabel={this.cycleSpanLabel.bind(this)}
 				/>
@@ -66,76 +24,39 @@ class NERAnnotator extends React.Component {
 		);
 	}
 
-	undo() {
-		console.log("undoing");
-		if (this.state.undoHistory.length <= 1) return false;
-		// console.log("pre", this.state.undoHistory);
-		// console.log("post", this.state.undoHistory.slice(0, this.state.undoHistory.length - 1));
-		this.setState({
-			undoHistory: this.state.undoHistory.slice(0, this.state.undoHistory.length - 1)
-		});
-	}
-
 	deleteSpan(spanIndex) {
-		// console.log("sel", spanIndex);
-		const undoHistory = this.state.undoHistory;
-		const current = undoHistory[undoHistory.length - 1];
-		const spans = current.spans.slice();
-		// console.log(spans);
+		const spans = this.props.spans.slice();
 		spans.splice(spanIndex, 1);
-		// console.log(spans);
-		this.setState({
-			undoHistory: undoHistory.concat([
-				{
-					spans: spans
-				}
-			])
-		});
+		this.props.updateSpans(spans);
 	}
 
 	cycleSpanLabel(spanIndex) {
-		const undoHistory = this.state.undoHistory;
-		const current = undoHistory[undoHistory.length - 1];
-		const spans = current.spans.slice();
+		const spans = this.props.spans.slice();
+		const avalableEntities = this.props.avalableEntities;
+
+		const newLabel =
+			avalableEntities[(avalableEntities.indexOf(spans[spanIndex].label) + 1) % avalableEntities.length] ||
+			"No avalable Entities provided";
+		this.lastUsedEntity = newLabel;
+
 		spans[spanIndex] = {
 			start: spans[spanIndex].start,
 			end: spans[spanIndex].end,
-			label: this.state.ents[(this.state.ents.indexOf(spans[spanIndex].label) + 1) % this.state.ents.length]
+			label: newLabel
 		};
-		this.setState({
-			undoHistory: undoHistory.concat([
-				{
-					spans: spans
-				}
-			])
-		});
-	}
-
-	componentDidMount() {
-		document.addEventListener("keydown", this.handleKeyPress.bind(this), false);
-	}
-
-	componentWillUnmount() {
-		document.removeEventListener("keydown", this.handleKeyPress.bind(this), false);
-	}
-
-	handleKeyPress(event) {
-		console.log(event);
-		if (event.key === "z" && (event.ctrlKey === true || event.metaKey === true)) this.undo();
+		this.props.updateSpans(spans);
 	}
 
 	handleMouseUp(e) {
-		const undoHistory = this.state.undoHistory;
-		const current = undoHistory[undoHistory.length - 1];
-		var spans = current.spans.slice();
+		var spans = this.props.spans.slice();
 		var selection = this.getSelectionRange();
 
 		if (selection.start === selection.end) return false;
 
 		var { spans, selection } = this.findSpansOverlapingSelection(spans, selection);
-		console.log("selection: " + this.state.text.slice(selection.start, selection.end), selection);
+		console.log("selection: " + this.props.text.slice(selection.start, selection.end), selection);
 
-		selection["label"] = this.state.ents[0];
+		selection["label"] = this.lastUsedEntity || this.props.avalableEntities[0] || "No avalable Entities provided";
 		console.log(spans, selection);
 
 		let spanIndex = 0;
@@ -143,13 +64,7 @@ class NERAnnotator extends React.Component {
 		if (spanIndex >= spans.length) spans.push(selection);
 		else spans.splice(spanIndex, 0, selection);
 
-		this.setState({
-			undoHistory: undoHistory.concat([
-				{
-					spans: spans
-				}
-			])
-		});
+		this.props.updateSpans(spans);
 	}
 
 	findSpansOverlapingSelection(spans, selection) {
@@ -187,7 +102,7 @@ class NERAnnotator extends React.Component {
 		let end = 0;
 		let charcounter = 0;
 
-		document.getElementById("displacy_container").childNodes.forEach((element) => {
+		document.getElementById("ner_visualizer_container").childNodes.forEach((element) => {
 			// console.dir(element);
 			if (element === startRange.startContainer || element === startRange.startContainer.parentNode) {
 				start = charcounter + startRange.startOffset;

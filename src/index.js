@@ -6,35 +6,139 @@ import NERAnnotator from "./NER_Annotator";
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		// // Don't call this.setState() here!
-		this.state = { text: "Loading...", spans: [], databaseId: null };
+		// Don't call this.setState() here!
+		this.state = {
+			currentlyFetching: false,
+			avalableEntities: [],
+			currentExampleHistoryIndex: 0,
+			exampleHistory: []
+		};
 	}
 
 	componentDidMount() {
-		this.getNext();
+		this.fetchAvalableEntities();
+		this.showNextExample();
+		document.addEventListener("keydown", this.handleKeyPress.bind(this), false);
 	}
 
-	getNext() {
-		fetch("http://127.0.0.1:8080/next")
+	componentWillUnmount() {
+		document.removeEventListener("keydown", this.handleKeyPress.bind(this), false);
+	}
+
+	handleKeyPress(event) {
+		console.log(event);
+		if (event.key === "ArrowRight") {
+			this.showNextExample();
+		} else if (event.key === "ArrowLeft") {
+			this.showPrevExample();
+		} else if (event.key === "z" && (event.ctrlKey === true || event.metaKey === true)) {
+			this.undo();
+		}
+	}
+
+	undo() {
+		console.log("undoing");
+		const exampleHistory = this.state.exampleHistory;
+		const exampleHistoryIndex = this.state.currentExampleHistoryIndex;
+		const currentExample = exampleHistory[exampleHistoryIndex];
+
+		if (currentExample.undoHistory.length <= 1) return false;
+
+		currentExample.undoHistory.pop();
+
+		this.setState({ exampleHistory: exampleHistory });
+	}
+
+	showPrevExample() {
+		const currentExampleHistoryIndex = this.state.currentExampleHistoryIndex;
+		if (currentExampleHistoryIndex > 0) this.setState({ currentExampleHistoryIndex: currentExampleHistoryIndex - 1 });
+	}
+
+	showNextExample() {
+		if (this.state.currentlyFetching === true) return;
+		const exampleHistory = this.state.exampleHistory;
+		const currentExampleHistoryIndex = this.state.currentExampleHistoryIndex;
+		if (currentExampleHistoryIndex < exampleHistory.length - 1) {
+			this.setState({ currentExampleHistoryIndex: currentExampleHistoryIndex + 1 });
+		} else {
+			this.setState({ currentlyFetching: true });
+			this.fetchNextExample().then((obj) => {
+				console.log(obj);
+				obj.undoHistory = [{ spans: obj.ents }];
+				delete obj.ents;
+				const newExampleHistory = exampleHistory.concat([obj]);
+				this.setState({
+					currentlyFetching: false,
+					exampleHistory: newExampleHistory,
+					currentExampleHistoryIndex: newExampleHistory.length - 1
+				});
+			});
+		}
+	}
+
+	fetchNextExample() {
+		return fetch("http://localhost:8080/next").then(function(response) {
+			console.log(response);
+			if ((response.status = 204)) {
+				alert("All done - No more examples left to annotate.\nEverything is saved. You can close this page now.");
+			} else return response.json();
+		});
+	}
+
+	saveSpans() {}
+
+	fetchAvalableEntities() {
+		fetch("http://localhost:8080/avalable_ents")
 			.then(function(response) {
 				return response.json();
 			})
 			.then((myJson) => {
-				let obj = myJson;
-				console.log(obj);
-				this.setState({ text: obj.text || "error", spans: obj.ents || [], databaseId: obj.database_id || "" });
-				// this.forceUpdate();
+				let array = myJson;
+				console.log(array);
+				this.setState({ avalableEntities: array });
 			});
 	}
 
+	updateSpans(newSpans) {
+		const exampleHistory = this.state.exampleHistory;
+		const exampleHistoryIndex = this.state.currentExampleHistoryIndex;
+		const currentExample = exampleHistory[exampleHistoryIndex];
+
+		currentExample.undoHistory = currentExample.undoHistory.concat([
+			{
+				spans: newSpans
+			}
+		]);
+
+		this.setState({ exampleHistory: exampleHistory });
+	}
+
 	render() {
-		return (
-			<div className="App">
-				{/* {JSON.stringify(this.state)} */}
-				{/* <h1>Hello CodeSandbox</h1> */}
-				<NERAnnotator text={this.state.text} spansObj={this.state.spans} />
-			</div>
-		);
+		const exampleHistory = this.state.exampleHistory;
+		const exampleHistoryIndex = this.state.currentExampleHistoryIndex;
+		const currentExample = exampleHistory[exampleHistoryIndex];
+
+		let loadingElm = null;
+		if (this.state.currentlyFetching) loadingElm = <progress></progress>;
+
+		if (currentExample !== undefined) {
+			const undoHistory = currentExample.undoHistory;
+			const currentUndo = undoHistory[undoHistory.length - 1];
+
+			return (
+				<div className="App">
+					{loadingElm}
+					<NERAnnotator
+						text={currentExample.text}
+						spans={currentUndo.spans}
+						avalableEntities={this.state.avalableEntities}
+						updateSpans={this.updateSpans.bind(this)}
+					/>
+				</div>
+			);
+		} else {
+			return "Loading...";
+		}
 	}
 }
 
