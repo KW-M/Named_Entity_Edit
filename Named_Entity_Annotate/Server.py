@@ -22,9 +22,9 @@ class HTTP_RequestHandler(SimpleHTTPRequestHandler):
         try:
           next_example = next(self.next_example_generator)
         except StopIteration:
-          json_body = json.dumps({'message':'No more examples.'})
-          self.send_response(204)
-        finally:
+          json_body = json.dumps({'NER_Annotate_Message':'No More Examples'})
+          self.stop = True
+        else:
           print(type(next_example))
           if not type(next_example) == dict or not 'text' in next_example or not 'ents' in next_example:
             warning = "Your next_example_generator must return a dict with at least these properties: text, ents. \nInstead got: " + str(next_example)

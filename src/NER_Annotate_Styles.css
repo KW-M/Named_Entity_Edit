@@ -6,6 +6,14 @@
 	direction: ltr;
 }
 
+#Fetching_Indicator {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+}
+
 #ner_visualizer_container {
 	line-height: 2.5rem;
 	direction: ltr;
