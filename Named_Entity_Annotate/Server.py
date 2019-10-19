@@ -1,6 +1,7 @@
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-import traceback
-import json
+import os,json,traceback
+
+Built_Webpage_Directory = os.path.join(os.path.dirname(__file__),'React_Website','build')
 
 class HTTP_RequestHandler(SimpleHTTPRequestHandler):
   # Initialize the SimpleHTTPRequestHandler (in this case the super class)
@@ -68,7 +69,7 @@ class HTTP_RequestHandler(SimpleHTTPRequestHandler):
 
         return
 
-def run(port=8080, webpage_directory='./build', avalable_entitiy_labels=[], next_example_generator=None, save_example_callback=None):
+def run(port=8080, webpage_directory=Built_Webpage_Directory, avalable_entitiy_labels=[], next_example_generator=None, save_example_callback=None):
   if (next_example_generator == None or save_example_callback == None):
     exit('You must supply both the next_example_generator and save_example_callback arguements to the run fuction. See the readme doc for help.')
 

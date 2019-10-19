@@ -59,6 +59,8 @@ def unchars2(source_generator,thing):
 # --- Save Function Callback Creators --
 
 def save_line_to_file(file_path):
+    if not os.path.exists(file_path):
+        open(file_path,'x').close()
     file = open(file_path,'w')
     def save_item(string,item_index):
         if file.closed or string == None:

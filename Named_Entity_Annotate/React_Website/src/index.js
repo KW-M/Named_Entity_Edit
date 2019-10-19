@@ -40,7 +40,6 @@ class App extends React.Component {
 	}
 
 	undo() {
-		console.log("undoing");
 		const exampleHistory = this.state.exampleHistory;
 		const exampleHistoryIndex = this.state.currentExampleHistoryIndex;
 		const currentExample = exampleHistory[exampleHistoryIndex];

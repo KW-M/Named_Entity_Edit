@@ -1,0 +1,2 @@
+include README.md
+include Named_Entity_Annotate/React_Website/build/*
