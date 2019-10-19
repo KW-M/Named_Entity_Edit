@@ -25,7 +25,7 @@ def from_file(file_path,delimeter=None):
 
 # --- Modifier Function Generators --
 
-def generator_modifier(source_generator,modifier_function):
+def generator_modifier_template(source_generator,modifier_function):
     for item in source_generator:
         if item == None:
             yield None
@@ -34,29 +34,29 @@ def generator_modifier(source_generator,modifier_function):
 
 def make_empty_ent_dict_from_text(source_generator):
     modifier_function = lambda string: { "text":str(string), "ents":[] }
-    return generator_modifier(source_generator,modifier_function)
+    return generator_modifier_template(source_generator,modifier_function)
 
 def parse_json_string(source_generator):
     modifier_function = lambda string: json.loads(string)
-    return generator_modifier(source_generator,modifier_function)
+    return generator_modifier_template(source_generator,modifier_function)
 
 def dump_json_string(source_generator):
     modifier_function = lambda dict_obj: json.dumps(dict_obj)
-    return generator_modifier(source_generator,modifier_function)
+    return generator_modifier_template(source_generator,modifier_function)
 
 def escape_control_chars(source_generator):
     modifier_function = lambda string: string.encode('unicode_escape')
-    return generator_modifier(source_generator,modifier_function)
+    return generator_modifier_template(source_generator,modifier_function)
 
 def unescape_control_chars(source_generator):
     modifier_function = lambda string: string.decode('unicode_escape')
-    return generator_modifier(source_generator,modifier_function)
+    return generator_modifier_template(source_generator,modifier_function)
 
 def unchars2(source_generator,thing):
     modifier_function = lambda string: string + str(thing)
-    return generator_modifier(source_generator,modifier_function)
+    return generator_modifier_template(source_generator,modifier_function)
 
-# --- Save Function Generators --
+# --- Save Function Callback Creators --
 
 def save_line_to_file(file_path):
     file = open(file_path,'w')
@@ -65,7 +65,7 @@ def save_line_to_file(file_path):
             file.close()
             return None
         else:
-            return Utilities.write_to_line_number(file,string,item_index)
+            return write_to_line_number(file,string,item_index)
     return save_item
 
 def save_as_file_in_folder(folder_path,output_file_extension):
@@ -77,7 +77,7 @@ def save_as_file_in_folder(folder_path,output_file_extension):
     return save_item
 
 
-
+# tests ------
 # nexty = make_empty_ent_dict_from_text(iter([1,2,4]))
 # nexty = make_empty_ent_dict_from_text(unescape_control_chars(escape_control_chars(from_folder('./',filter_by_extension='rc'))))
 # next = from_file('README.md')

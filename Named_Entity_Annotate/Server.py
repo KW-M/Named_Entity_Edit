@@ -8,7 +8,7 @@ class HTTP_RequestHandler(SimpleHTTPRequestHandler):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, directory=self.webpage_directory, **kwargs)
 
-  # Handle GET Requests
+  # Handle GET Requests from WebApp
   def do_GET(self):
 
       # Set response status code
@@ -47,14 +47,14 @@ class HTTP_RequestHandler(SimpleHTTPRequestHandler):
       return
 
 
-  # Handle POST Requests
+  # Handle POST Requests from WebApp
   def do_POST(self):
         if self.path == '/save':
           content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-          post_data = self.rfile.read(content_length)
-          response_dict = json.loads(post_data)
+          post_data = self.rfile.read(content_length) # <--- Reads all of the payload data.
+          response_dict = json.loads(post_data) # <--- Convert payload json string to python dict.
           try:
-            self.save_example_callback(response_dict)
+            self.save_example_callback(response_dict) # <--- Try to run the user's save callback passing the WebApp's response as a dict.
             # Send server the ok status code
             self.send_response(200)
           except Exception:
@@ -70,7 +70,7 @@ class HTTP_RequestHandler(SimpleHTTPRequestHandler):
 
 def run(port=8080, webpage_directory='./build', avalable_entitiy_labels=[], next_example_generator=None, save_example_callback=None):
   if (next_example_generator == None or save_example_callback == None):
-    exit('You must supply both the next_example_callback and save_example_callback arguements to the run fuction.')
+    exit('You must supply both the next_example_generator and save_example_callback arguements to the run fuction. See the readme doc for help.')
 
   print('starting server...')
 
@@ -78,15 +78,14 @@ def run(port=8080, webpage_directory='./build', avalable_entitiy_labels=[], next
   # By default we use the localhost address (127.0.0.1) and the port 8080
   server_address = ('127.0.0.1', port)
 
-  RequestHandler = HTTP_RequestHandler
   # A bit hacky, but set the passed arguements as parameters on the
-  # HTTP_RequestHandler class so they can be read & called within the handler
-  RequestHandler.webpage_directory = webpage_directory
-  RequestHandler.avalable_entitiy_labels = avalable_entitiy_labels
-  RequestHandler.next_example_generator = next_example_generator
-  RequestHandler.save_example_callback = save_example_callback
+  # HTTP_RequestHandler class so they can be read & called within the handler:
+  HTTP_RequestHandler.webpage_directory = webpage_directory
+  HTTP_RequestHandler.avalable_entitiy_labels = avalable_entitiy_labels
+  HTTP_RequestHandler.next_example_generator = next_example_generator
+  HTTP_RequestHandler.save_example_callback = save_example_callback
 
-  httpd = HTTPServer(server_address,RequestHandler)
+  httpd = HTTPServer(server_address,HTTP_RequestHandler)
 
   print(HTTP_RequestHandler.webpage_directory)
 
