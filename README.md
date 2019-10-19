@@ -6,26 +6,49 @@ Note: This library is still a work-in-progress.
 
 ## Docs
 
+## Install
+
+```bash
+$ pip install NER_Annotate (not avalable yet)
+```
+
 ### Getting Started
 
+Named_Entity_Annotate's main function is Server.run()
+
 ```python
-
 from Named_Entity_Annotate import Server, Generators
-# We first use a source Generator
-source_generator = Generators.from_folder('/Users/kyle/Desktop/questions')
 
-json_modifier = Generators.parse_json_string(source_generator)
+source_generator = Generators.parse_json_string(Generators.from_folder('examples'))
 
-save_callback = Generators.save_line_to_file('/Users/kyle/Desktop/output.json')
+save_callback = Generators.save_line_to_file('output.json')
 
-Server.run(avalable_entitiy_labels=["PRODUCT","org","GpE","LOC","MONEY","TIME",],next_example_generator=json_modifier,save_example_callback=save_callback)
+Server.run(
+  avalable_entitiy_labels=["PRODUCT","org","GpE","LOC","MONEY","TIME",],
+  next_example_generator=source_generator,
+  save_example_callback=save_callback
+)
 ```
 
 ### Recipies for common functionality
 
-```python
+* Get examples from a folder of plain text files:
 
-```
+  ```python
+  source_generator = Generators.make_empty_ent_dict_with_text(Generators.from_folder('examples'))
+  ```
+  
+* Get examples from a file where each line is a plain text example:
+
+  ```python
+  source_generator = Generators.make_empty_ent_dict_with_text(Generators.from_file('examples.txt'))
+  ```
+  
+* Get examples from a folder where each file is already json formatted like the data format below
+
+  ```python
+  source_generator = Generators.parse_json_string(Generators.from_folder('examples'))
+  ```
 
 ### Methods
 
