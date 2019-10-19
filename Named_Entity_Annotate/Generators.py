@@ -32,7 +32,7 @@ def generator_modifier_template(source_generator,modifier_function):
         else:
             yield modifier_function(item)
 
-def make_empty_ent_dict_from_text(source_generator):
+def make_empty_ent_dict_with_text(source_generator):
     modifier_function = lambda string: { "text":str(string), "ents":[] }
     return generator_modifier_template(source_generator,modifier_function)
 
@@ -70,7 +70,7 @@ def save_line_to_file(file_path):
             return write_to_line_number(file,string,item_index)
     return save_item
 
-def save_as_file_in_folder(folder_path,output_file_extension):
+def save_as_file_in_folder(folder_path,output_file_extension="json"):
     def save_item(content_string,item_id):
         file_name = item_id + '.' + output_file_extension
         with open(os.path.join(folder_path,file_name),'w') as file:
