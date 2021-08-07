@@ -15,63 +15,96 @@
 }
 
 #ner_visualizer_container {
-	line-height: 2.5rem;
+	line-height: 2.8rem;
 	direction: ltr;
+	position: relative;
+}
+
+.spans-overlay-container {
+	position: absolute;
+	top: 0;
+	margin: 0;
+	pointer-events: none;
 }
 
 [data-entity] {
+	white-space: pre;
+	box-decoration-break: slice;
 	position: relative;
-	padding: 0.45em 0.6em;
-	border-radius: 0.35em;
-	background-color: #c0b5ff;
-	box-decoration-break: clone;
-	white-space: nowrap;
+	padding: 0;
+	border-radius: 4px;
+	background-color: transparent;
 	line-height: 1;
 	cursor: pointer;
+	margin: 0 -0.03em;
+	pointer-events: all;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+	border: solid 0.01em black;
+	border-top: 1.2em solid white;
+	border-bottom: 1.2em solid white;
 }
 
-[data-entity]:before {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: #c0b5ff1f;
-	content: '';
+/* [data-entity]:before {
 	user-select: none;
-}
-
-[data-entity]:after {
 	margin-left: 0.5rem;
 	padding: 0.4em 0;
 	box-sizing: border-box;
 	border-radius: 0.35em;
 	content: attr(data-entity);
-	vertical-align: middle;
 	text-transform: uppercase;
 	font-weight: bold;
 	font-size: 0.8em;
-	line-height: 2em;
+	display: block;
+	top: -1em;
+	left: 50%;
+	transform: translateX(-50%);
+} */
+
+[data-entity] div {
+	bottom: -1.1em;
+	left: 50%;
+	visibility: hidden;
+	-webkit-transform: translateX(-50%);
+	        transform: translateX(-50%);
+	position: absolute;
+	padding-top: 3em;
+	z-index: 2;
+}
+
+[data-entity] div span {
+	font-size: 0.75em;
+	font-weight: bold;
+	padding: 2px 5px;
+	border-radius: 10px;
+	position: relative;
 }
 
 [data-entity] button {
 	position: absolute;
-	top: -1em;
-	left: -1.2em;
+	right: -0.9em;
 	width: 2.5em;
 	height: 2.5em;
 	box-sizing: border-box;
 	border-radius: 111px;
-	background-color: #ff0000;
+	background-color: #fc5a5a;
+	border: 0.1em grey solid;
 	color: #ffffff;
 	font-weight: bold;
-	opacity: 0;
 	cursor: pointer;
+	top: -0;
+	-webkit-transform: translateX(-50%);
+	        transform: translateX(-50%);
+	left: 50%;
 }
 
-[data-entity]:hover button {
-	opacity: 0.6;
+[data-entity]:hover div {
+	visibility: visible;
 }
+
 [data-entity] button:hover {
-	opacity: 1;
+	background-color: #ff0000;
+	border: 0.1em black solid;
 }

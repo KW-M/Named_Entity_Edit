@@ -4,10 +4,13 @@ import "./NER_Annotate_Styles.css";
 
 class NERVisualizer extends React.Component {
 	render() {
-		return this.generateHTML(this.props.text, this.props.spans);
+		return [
+			<pre>{this.props.text}</pre>,
+			<pre className="spans-overlay-container">{this.generateOverlayHTML(this.props.text, this.props.spans)}</pre>
+		];
 	}
 
-	generateHTML(text, spans) {
+	generateOverlayHTML(text, spans) {
 		let output = [];
 		let offset = 0;
 
@@ -34,15 +37,18 @@ class NERVisualizer extends React.Component {
 						this.props.cycleSpanLabel(spanIndex);
 					}}>
 					{entity}
-					<button
-						onClick={(e) => {
-							cancelSpanClick = true;
-							// e.preventDefault();
-							// e.nativeEvent.stopImmediatePropagation();
-							this.props.deleteSpan(spanIndex);
-						}}>
-						x
-					</button>
+					<div>
+						<span style={{ background: color }}>{label}</span>
+						<button
+							onClick={(e) => {
+								cancelSpanClick = true;
+								// e.preventDefault();
+								// e.nativeEvent.stopImmediatePropagation();
+								this.props.deleteSpan(spanIndex);
+							}}>
+							x
+						</button>
+					</div>
 				</span>
 			);
 			offset = end;
@@ -65,7 +71,7 @@ class NERVisualizer extends React.Component {
 	}
 
 	intToHSL(i) {
-		return "hsla(" + ((i - 400) % 360) + ", 90%, 65%, 1)";
+		return "hsla(" + ((i - 400) % 360) + ", 90%, 70%, 1)";
 	}
 }
 
