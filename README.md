@@ -2,15 +2,15 @@
 
 A little tool I made for annotating text to train spaCy's (or any) Named Entity Recognition model.
 
-*Note: This library is still a work-in-progress.*
+> :warning: Named Entity Anotate is generally functional; however, the frontend has issues with complex text selection. I don't have the time to resolve these issues, so I've put this project on hold for unknown time. Please do fork and open a pull request if you want to take a stab at fixing these issues!
 
 ## Docs
 
 ## Install
 
-```bash
-$ pip install NER_Annotate (not avalable yet)
-```
+1. Clone or download this repo
+2. Copy the repo folder to your python project
+3. Import modules from Named_Entity_Annotate
 
 ### Getting Started
 
